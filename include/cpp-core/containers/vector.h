@@ -6,15 +6,15 @@
 template <typename T>
 class vector{
 public:
-  // a vector does not own memory until it does
+  /* a vector does not own memory until it does */
   vector() : data_(nullptr), size_(0), capacity_(0) {}
   
   vector(const vector& other){
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
     data_ = new_data; 
+
     capacity_ = other.capacity_;
     size_ = other.size_;
-
     for(size_t i = 0; i < other.size_; ++i)
       new (data_ + i) T(other.data_[i]);
   }
@@ -22,18 +22,16 @@ public:
   vector& operator=(const vector& other){
     if(this == &other)    /* other = other; */
       return *this;
-
-    for(size_t i = 0; i < size_; ++i)
-      data_[i].~T();          /* destroying each element */
-    ::operator delete(data_); /* before copying data */
     
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
+    for(size_t i = 0; i < other.size_; ++i)
+      new (new_data + i) T(other.data_[i]);
+
+    destroy_and_deallocate();   /* if an operation fails, object */
+                                /* should remain unchanged */
     data_ = new_data;
     capacity_ = other.capacity_;
     size_ = other.size_;
-
-    for(size_t i = 0; i < other.size_; ++i)
-      new (data_ + i) T(other.data_[i]);
 
     return *this;
   }
@@ -48,13 +46,10 @@ public:
     if(this == &other)
       return *this;
 
-    for(size_t i = 0; i < size_; ++i)
-      data_[i].~T();          /* destroying each element */
-    ::operator delete(data_); /* before moving data */
-
+    destroy_and_deallocate();
     data_ = other.data_;
     size_ = other.size_;
-    capacity_ = other.capacity_;
+    capacity_ = other.size_; /* size_ to prevent over-allocation */
 
     other.data_ = nullptr;
     other.size_ = 0;
@@ -64,9 +59,7 @@ public:
   }
  
   ~vector(){
-    for(size_t i = 0; i < size_; ++i)
-      data_[i].~T();          /* destroying each element */
-    ::operator delete(data_); /* releasing raw memory buffer */
+    destroy_and_deallocate();
   }
 
   size_t size() const {
@@ -91,12 +84,15 @@ public:
     for(size_t i = 0; i < size_; ++i)
       new (new_data + i) T(data_[i]);
 
-    for(size_t i = 0; i < size_; ++i)
-      data_[i].~T();
-    ::operator delete(data_);
-
+    destroy_and_deallocate();
     data_ = new_data;
     capacity_ = new_capacity;
+  }
+
+  void destroy_and_deallocate(){
+    for(size_t i = 0; i < size_; ++i)
+      data_[i].~T();          /* destroying each element */
+    ::operator delete(data_); /* releasing raw memory */
   }
 
 private:
