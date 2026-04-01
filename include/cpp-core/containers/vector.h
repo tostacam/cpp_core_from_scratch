@@ -87,15 +87,59 @@ public:
     ++size_;
   }
 
+  template<typename... Args>
+  void emplace_back(Args&&... args){
+    if(size_ >= capacity_)
+      grow();
+    new (data_ + size_) T(std::forward<Args>(args)...);
+    ++size_;
+  }
+
+  void reserve(const size_t& new_capacity){
+    if(new_capacity <= capacity_)
+      return;
+
+    T* new_data = static_cast<T*>(::operator new (sizeof(T) * new_capacity));
+    
+    size_t temp = size_, constructed = 0;
+    try {
+      for(size_t i = 0; i < size_; ++i){
+        new (new_data + i) T(std::move(data_[i]));
+        ++constructed;
+      }
+    } catch(...) {
+      for(size_t j = 0; j < constructed; ++j)
+        new_data[j].~T();
+      ::operator delete(new_data);
+      throw;
+    }
+
+    destroy_and_deallocate();
+    data_ = new_data;
+    size_ = temp;
+    capacity_ = new_capacity;
+  }
+
   void grow(){
     size_t new_capacity = (capacity_ == 0) ? 1 : capacity_ * 2; /* increasing capacity */
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
 
-    for(size_t i = 0; i < size_; ++i)
-      new (new_data + i) T(std::move(data_[i]));
+    size_t temp = size_, constructed = 0;
+    try {
+      for(size_t i = 0; i < size_; ++i){
+        new (new_data + i) T(std::move(data_[i]));
+        ++constructed;
+      }
+    } catch(...) {
+      for(size_t j = 0; j < constructed; ++j)
+        new_data[j].~T();
+      ::operator delete(new_data);
+      throw;
+    }
 
     destroy_and_deallocate();
     data_ = new_data;
+    size_ = temp;
     capacity_ = new_capacity;
   }
 
