@@ -18,6 +18,12 @@ public:
     for(size_t i = 0; i < other.size_; ++i)
       new (data_ + i) T(other.data_[i]);
   }
+
+  vector(vector&& other) : data_(other.data_), size_(other.size_), capacity_(other.capacity_) {
+    other.data_ = nullptr;
+    other.size_ = 0;
+    other.size_ = 0;
+  }
  
   ~vector(){
     for(size_t i = 0; i < size_; ++i)
@@ -34,15 +40,10 @@ public:
   }
 
   void push_back(const T& value){
-    if(size_ < capacity_){
-      new (data_ + size_) T(value);
-      ++size_;
-    }
-    else{
+    if(size_ >= capacity_)
       grow();
-      new (data_ + size_) T(value);
-      ++size_;
-    }
+    new (data_ + size_) T(value);
+    ++size_;
   }
 
   void grow(){
