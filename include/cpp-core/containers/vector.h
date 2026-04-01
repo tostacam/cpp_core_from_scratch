@@ -2,6 +2,7 @@
 
 #pragma once
 #include <cstddef>  /* for size_t */
+#include <utility>  /* for move */
 
 template <typename T>
 class vector{
@@ -11,10 +12,11 @@ public:
   
   vector(const vector& other){
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
-    data_ = new_data; 
 
-    capacity_ = other.capacity_;
+    data_ = new_data; 
     size_ = other.size_;
+    capacity_ = other.capacity_;
+
     for(size_t i = 0; i < other.size_; ++i)
       new (data_ + i) T(other.data_[i]);
   }
@@ -30,8 +32,8 @@ public:
     destroy_and_deallocate();   /* if an operation fails, object */
                                 /* should remain unchanged */
     data_ = new_data;
-    capacity_ = other.capacity_;
     size_ = other.size_;
+    capacity_ = other.capacity_;
 
     return *this;
   }
@@ -49,13 +51,21 @@ public:
     destroy_and_deallocate();
     data_ = other.data_;
     size_ = other.size_;
-    capacity_ = other.size_; /* size_ to prevent over-allocation */
+    capacity_ = other.capacity_;
 
     other.data_ = nullptr;
     other.size_ = 0;
     other.capacity_ = 0;
 
     return *this;
+  }
+
+  T& operator[](size_t i){
+    return data_[i];  /* no bounds checking, UB */
+  }
+
+  const T& operator[](size_t i) const {
+    return data_[i];  /* no bounds checking, UB */
   }
  
   ~vector(){
@@ -82,7 +92,7 @@ public:
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
 
     for(size_t i = 0; i < size_; ++i)
-      new (new_data + i) T(data_[i]);
+      new (new_data + i) T(std::move(data_[i]));
 
     destroy_and_deallocate();
     data_ = new_data;
@@ -93,6 +103,10 @@ public:
     for(size_t i = 0; i < size_; ++i)
       data_[i].~T();          /* destroying each element */
     ::operator delete(data_); /* releasing raw memory */
+
+    data_ = nullptr;
+    size_ = 0;
+    capacity_ = 0;
   }
 
 private:
