@@ -87,6 +87,13 @@ public:
     ++size_;
   }
 
+  void pop_back(){
+    if(size_ > 0){
+      --size_;
+      data_[size_].~T();
+    }
+  }
+
   template<typename... Args>
   void emplace_back(Args&&... args){
     if(size_ >= capacity_)
@@ -98,30 +105,15 @@ public:
   void reserve(const size_t& new_capacity){
     if(new_capacity <= capacity_)
       return;
-
-    T* new_data = static_cast<T*>(::operator new (sizeof(T) * new_capacity));
-    
-    size_t temp = size_, constructed = 0;
-    try {
-      for(size_t i = 0; i < size_; ++i){
-        new (new_data + i) T(std::move(data_[i]));
-        ++constructed;
-      }
-    } catch(...) {
-      for(size_t j = 0; j < constructed; ++j)
-        new_data[j].~T();
-      ::operator delete(new_data);
-      throw;
-    }
-
-    destroy_and_deallocate();
-    data_ = new_data;
-    size_ = temp;
-    capacity_ = new_capacity;
+    reallocate(new_capacity);
   }
 
   void grow(){
     size_t new_capacity = (capacity_ == 0) ? 1 : capacity_ * 2; /* increasing capacity */
+    reallocate(new_capacity);
+  }
+
+  void reallocate(size_t new_capacity){
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
 
     size_t temp = size_, constructed = 0;
@@ -151,6 +143,12 @@ public:
     data_ = nullptr;
     size_ = 0;
     capacity_ = 0;
+  }
+
+  void clear(){
+    for(size_t i = 0; i < size_; ++i)
+     data_[i].~T();
+    size_ = 0; 
   }
 
 private:
