@@ -164,6 +164,65 @@ public:
     ++size_;
   }
 
+  void resize(size_t new_size){
+    if(new_size < size_){
+      for(size_t i = new_size; i < size_; ++i)
+        data_[i].~T();
+      size_ = new_size;
+    }
+    else if(new_size > size_){
+      if(new_size > capacity_)
+        reallocate(new_size);
+
+      for(size_t i = size_; i < new_size; ++i)
+        new (data_ + i) T();
+
+      size_ = new_size;
+    }
+  }
+
+  void resize(size_t new_size, const T& value){
+    if(new_size < size_){
+      for(size_t i = new_size; i < size_; ++i)
+        data_[i].~T();
+      size_ = new_size;
+    }
+    else if(new_size > size_){
+      if(new_size > capacity_)
+        reallocate(new_size);
+
+      for(size_t i = size_; i < new_size; ++i)
+        new (data_ + i) T(value);
+
+      size_ = new_size;
+    } 
+  }
+
+  void assign(size_t count, const T& value){
+    if(count <= capacity_){
+      size_t i = 0;
+      
+      for(; i < size_ && i < count; ++i)
+        data_[i] = value;
+
+      for(; i < count; ++i)
+        new (data_ + i) T(value);
+
+      for(size_t j = count; j < size_; ++j)
+        data_[j].~T();
+
+      size_ = count;
+    }
+    else{
+      reallocate(count);
+
+      for(size_t i = 0; i < count; ++i)
+        new (data_ + i) T(value);
+      
+      size_ = count;
+    }
+  }
+
   T* begin(){
     return data_;
   }
@@ -217,6 +276,13 @@ public:
       reallocate(size_);
   }
 
+  void clear(){
+    for(size_t i = 0; i < size_; ++i)
+     data_[i].~T();
+    size_ = 0; 
+  }
+
+private:
   void grow(){
     size_t new_capacity = (capacity_ == 0) ? 1 : capacity_ * 2; /* increasing capacity */
     reallocate(new_capacity);
@@ -226,9 +292,10 @@ public:
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
 
     /* construction loops must always be exception-safe */
-    size_t temp = size_, constructed = 0;
+    size_t temp = (size_ < new_capacity) ? size_ : new_capacity; 
+    size_t constructed = 0;
     try {
-      for(size_t i = 0; i < size_; ++i){
+      for(size_t i = 0; i < size_ && i < new_capacity; ++i){
         new (new_data + i) T(std::move(data_[i]));
         ++constructed;
       }
@@ -255,13 +322,6 @@ public:
     capacity_ = 0;
   }
 
-  void clear(){
-    for(size_t i = 0; i < size_; ++i)
-     data_[i].~T();
-    size_ = 0; 
-  }
-
-private:
   T* data_;
   size_t size_;
   size_t capacity_;
