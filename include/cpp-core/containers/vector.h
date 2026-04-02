@@ -3,6 +3,7 @@
 #pragma once
 #include <cstddef>  /* for size_t */
 #include <utility>  /* for move */
+#include <iterator> /* for std::distance */
 
 template <typename T>
 class vector{
@@ -10,6 +11,25 @@ public:
   /* a vector does not own memory until it does */
   vector() : data_(nullptr), size_(0), capacity_(0) {}
   
+  template<typename It>
+  vector(It first, It last) : data_(nullptr), size_(0), capacity_(0) {
+    size_t constructed = 0;
+    try{
+      size_t dist = std::distance(first, last);
+      reserve(dist);
+      for( ; first != last; ++first){
+        new (data_ + size_) T(*first);
+        ++size_;
+        ++constructed;
+      }
+    } catch(...) {
+      for(size_t i = 0; i < constructed; ++i)
+        data_[i].~T();
+      ::operator delete(data_);
+      throw;
+    }
+  }
+
   vector(const vector& other){
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
 
@@ -80,10 +100,23 @@ public:
     return capacity_;
   }
 
+  bool empty() const {
+    if(size_ == 0)
+      return true;
+    return false;
+  }
+
   void push_back(const T& value){
     if(size_ >= capacity_)
       grow();
     new (data_ + size_) T(value);
+    ++size_;
+  }
+
+  void push_back(T&& value){
+    if(size_ >= capacity_)
+      grow();
+    new (data_ + size_) T(std::forward<T>(value));
     ++size_;
   }
 
@@ -94,12 +127,60 @@ public:
     }
   }
 
+  T* begin(){
+    return data_;
+  }
+
+  const T* begin() const {
+    return data_;
+  }
+
+  T* end(){
+    return (data_ + size_);
+  }
+
+  const T* end() const {
+    return (data_ + size_);
+  }
+
+  T* data(){
+    return data_;
+  }
+
+  const T* data() const {
+    return data_;
+  }
+
+  T& front(){
+    return data_[0];
+  }
+
+  const T& front() const {
+    return data_[0];
+  }
+
+  T& back(){
+    return data_[size_ - 1];
+  }
+
+  const T& back() const {
+    return data_[size_ - 1];
+  
+  }
+
   template<typename... Args>
   void emplace_back(Args&&... args){
     if(size_ >= capacity_)
       grow();
     new (data_ + size_) T(std::forward<Args>(args)...);
     ++size_;
+  }
+
+  void shrink_to_fit(){
+    if(size_ == 0)
+      destroy_and_deallocate();
+    else if(size_ < capacity_)
+      reallocate(size_);
   }
 
   void reserve(const size_t& new_capacity){
@@ -116,6 +197,7 @@ public:
   void reallocate(size_t new_capacity){
     T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
 
+    /* construction loops must always be exception-safe */
     size_t temp = size_, constructed = 0;
     try {
       for(size_t i = 0; i < size_; ++i){
