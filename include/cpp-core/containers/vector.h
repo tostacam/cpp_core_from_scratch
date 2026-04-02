@@ -104,7 +104,7 @@ public:
     if(size_ == 0)
       return true;
     return false;
-  }
+ }
 
   void push_back(const T& value){
     if(size_ >= capacity_)
@@ -120,11 +120,48 @@ public:
     ++size_;
   }
 
+  T* insert(T* pos, const T& value){
+    size_t dist = std::distance(begin(), pos);
+    if(size_ == capacity_){
+      grow();
+      pos = begin() + dist;
+    }
+
+    for(size_t i = size_; i > dist; --i){
+      new (data_ + i) T(std::move(data_[i - 1]));
+      data_[i - 1].~T();
+    }
+
+    new (pos) T(value);
+    ++size_;
+
+    return pos;
+  }
+
+  T* erase(T* pos){
+    for(T* it = pos; it < end() - 1; ++it){
+      new (it) T(std::move(*(it+1)));
+      (it+1)->~T();
+    }
+    (data_ + size_ - 1)->~T();
+    --size_;
+
+    return pos;
+  }
+
   void pop_back(){
     if(size_ > 0){
       --size_;
       data_[size_].~T();
     }
+  }
+
+  template<typename... Args>
+  void emplace_back(Args&&... args){
+    if(size_ >= capacity_)
+      grow();
+    new (data_ + size_) T(std::forward<Args>(args)...);
+    ++size_;
   }
 
   T* begin(){
@@ -165,15 +202,12 @@ public:
 
   const T& back() const {
     return data_[size_ - 1];
-  
   }
 
-  template<typename... Args>
-  void emplace_back(Args&&... args){
-    if(size_ >= capacity_)
-      grow();
-    new (data_ + size_) T(std::forward<Args>(args)...);
-    ++size_;
+  void reserve(const size_t& new_capacity){
+    if(new_capacity <= capacity_)
+      return;
+    reallocate(new_capacity);
   }
 
   void shrink_to_fit(){
@@ -181,12 +215,6 @@ public:
       destroy_and_deallocate();
     else if(size_ < capacity_)
       reallocate(size_);
-  }
-
-  void reserve(const size_t& new_capacity){
-    if(new_capacity <= capacity_)
-      return;
-    reallocate(new_capacity);
   }
 
   void grow(){
