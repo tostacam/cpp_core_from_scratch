@@ -1,4 +1,10 @@
 // std::vector<T>
+// - owns a contiguous block of raw memory
+// - seaparates size (live objects) from capacity (reserved space)
+// - provides random access (amortized O(1) via exponetial growth)
+// - reallocation moves or copies all elements
+// - destroys elements on removal/destruction
+// - supports copy (deep copy) and move (transfer of ownserhip)
 
 #pragma once
 #include <cstddef>  /* for size_t */
