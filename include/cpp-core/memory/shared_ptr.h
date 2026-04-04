@@ -25,10 +25,23 @@ public:
       ctrl_ = nullptr;
   }
 
+  shared_ptr(const shared_ptr& other){
+    ptr_ = other.ptr_;
+    ctrl_ = other.ctrl_;
+    ctrl_->ref_count++;
+  }
+
+  shared_ptr& operator=(const shared_ptr& other){
+    ptr_ = other.ptr_;
+    ctrl_ = other.ctrl_;
+    ctrl_->ref_count++;
+    return *this; 
+  }
+
   ~shared_ptr(){
-    if(ctr_ && --(ctrl_->ref_count) == 0){
-        delete ptr_;
-        delete ctrl_;
+    if(ctrl_ && --(ctrl_->ref_count) == 0){
+      delete ptr_;
+      delete ctrl_;
     }
   }
 private:
