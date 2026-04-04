@@ -15,6 +15,22 @@ public:
 
 template <typename T>
 class shared_ptr{
+public:
+  shared_ptr() : ptr_(nullptr), ctrl_(nullptr) {}
+
+  explicit shared_ptr(T* ptr) : ptr_(ptr) {
+    if(ptr_)
+      ctrl_ = new control_block{1};
+    else
+      ctrl_ = nullptr;
+  }
+
+  ~shared_ptr(){
+    if(ctr_ && --(ctrl_->ref_count) == 0){
+        delete ptr_;
+        delete ctrl_;
+    }
+  }
 private:
   T* ptr_;
   control_block* ctrl_;
