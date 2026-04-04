@@ -10,32 +10,55 @@
 template <typename T>
 class unique_ptr{
 public:
-  unique_ptr() : ptr(nullptr) {}
+  unique_ptr() : ptr_(nullptr) {}
   
-  explicit unique_ptr(T* ptr) : ptr(ptr) {}
+  explicit unique_ptr(T* ptr) : ptr_(ptr) {}
 
   unique_ptr(const unique_ptr&) = delete;
 
   unique_ptr& operator=(const unique_ptr&) = delete;
 
   unique_ptr (unique_ptr&& other){
-    ptr = other.ptr;
-    other.ptr = nullptr;
+    ptr_ = other.ptr_;
+    other.ptr_ = nullptr;
   }
 
   unique_ptr& operator=(unique_ptr&& other){
-    if(this != other){
-      delete ptr;
-      ptr = other.ptr;
-      other.ptr = nullptr;
+    if(this != &other){ /* would delete in case of self-move */
+      delete ptr_;
+      ptr_ = other.ptr_;
+      other.ptr_ = nullptr;
     }
     return *this;
   }
 
   ~unique_ptr(){
-    delete ptr; /* allocation: new T(...) */
+    delete ptr_; /* allocation: new T(...) */
+  }
+
+  T* get(){
+    return ptr_;
   } 
 
+  T& operator*(){
+    return *ptr_;
+  }
+
+  T* operator->(){
+    return ptr_;
+  }
+
+  T* release(){
+    T* temp = ptr_;
+    ptr_ = nullptr;
+    return temp;
+  }
+
+  void reset(T* ptr){
+    delete ptr_;
+    ptr_ = ptr;
+  }
+
 private:
-  T* ptr;
+  T* ptr_;
 };
