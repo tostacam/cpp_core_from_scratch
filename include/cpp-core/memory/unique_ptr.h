@@ -3,7 +3,7 @@
 // - deletes it on destruction
 // - cannot be copied
 // - can be moved (transfers ownership)
-// - guarantees single ownership
+// - guarantees single ownership (prevents double delete, UB)
 
 #include <utility> /* for move */
 
@@ -38,13 +38,26 @@ public:
 
   T* get(){
     return ptr_;
-  } 
+  }
 
   T& operator*(){
     return *ptr_;
   }
-
+  
   T* operator->(){
+    return ptr_;
+  }
+
+  /* const applies to handle not resource */
+  T* get() const {
+    return ptr_;
+  }
+
+  T& operator*() const {
+    return *ptr_;
+  }
+
+  T* operator->() const {
     return ptr_;
   }
 
@@ -55,8 +68,10 @@ public:
   }
 
   void reset(T* ptr){
-    delete ptr_;
-    ptr_ = ptr;
+    if(ptr_ != ptr){
+      delete ptr_;
+      ptr_ = ptr;
+    }
   }
 
 private:
