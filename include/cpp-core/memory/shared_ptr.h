@@ -9,7 +9,6 @@
 #pragma once
 #include <cstddef>  /* for size_t */
 
-#include <iostream>
 class control_block{
 public:
   size_t ref_count;
@@ -28,7 +27,6 @@ public:
   }
 
   shared_ptr(const shared_ptr& other){
-    std::cout << "from copy ctr\n";
     ptr_ = other.ptr_;
     ctrl_ = other.ctrl_;
     if(ctrl_)
@@ -52,7 +50,6 @@ public:
   }
 
   shared_ptr(shared_ptr&& other){
-    std::cout << "from move ctr\n";
     ptr_ = other.ptr_;
     ctrl_ = other.ctrl_;
     other.ptr_ = nullptr;
@@ -81,6 +78,39 @@ public:
       delete ctrl_;
     }
   }
+
+  T* get(){
+    return ptr_;
+  }
+
+  T& operator*(){
+    return *ptr_;
+  }
+
+  T* operator->(){
+    return ptr_;
+  }
+
+  size_t use_count() const {
+    return ctrl_ ? ctrl_->ref_count : 0;
+  }
+
+  void reset(T* ptr = nullptr){
+    if(ctrl_ && --(ctrl_->ref_count) == 0){
+      delete ptr_;
+      delete ctrl_;
+    }
+
+    if(ptr){
+      ptr_ = ptr;
+      ctrl_ = new control_block{1};
+    }
+    else{
+      ptr_ = nullptr;
+      ctrl_ = nullptr;
+    }
+  }
+
 private:
   T* ptr_;
   control_block* ctrl_;
