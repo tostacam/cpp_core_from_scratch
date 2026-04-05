@@ -83,11 +83,23 @@ public:
     return ptr_;
   }
 
+  T* get() const {
+    return ptr_;
+  }
+
   T& operator*(){
     return *ptr_;
   }
 
+  T& operator*() const {
+    return *ptr_;
+  }
+
   T* operator->(){
+    return ptr_;
+  }
+
+  T* operator->() const {
     return ptr_;
   }
 
