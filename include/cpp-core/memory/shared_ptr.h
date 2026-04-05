@@ -11,7 +11,8 @@
 
 class control_block{
 public:
-  size_t ref_count;
+  size_t shared_count;
+  size_t weak_count;
 };
 
 template <typename T>
@@ -21,7 +22,7 @@ public:
 
   explicit shared_ptr(T* ptr) : ptr_(ptr) {
     if(ptr_)
-      ctrl_ = new control_block{1};
+      ctrl_ = new control_block{1,0};
     else
       ctrl_ = nullptr;
   }
@@ -30,13 +31,13 @@ public:
     ptr_ = other.ptr_;
     ctrl_ = other.ctrl_;
     if(ctrl_)
-      ctrl_->ref_count++;
+      ctrl_->shared_count++;
   }
 
   shared_ptr& operator=(const shared_ptr& other){
     if(this != &other){ /* in case of self copy */
       /* remove current pointer */
-      if(ctrl_ && --(ctrl_->ref_count) == 0){
+      if(ctrl_ && --(ctrl_->shared_count) == 0){
         delete ptr_;
         delete ctrl_;
       }
@@ -44,7 +45,7 @@ public:
       ptr_ = other.ptr_;
       ctrl_ = other.ctrl_;
       if(ctrl_)
-        ctrl_->ref_count++;
+        ctrl_->shared_count++;
     }
     return *this;
   }
@@ -59,7 +60,7 @@ public:
   shared_ptr& operator=(shared_ptr&& other){
     if(this != &other){ /* in case of self move */
       /* release current */
-      if(ctrl_ && --(ctrl_->ref_count) == 0){
+      if(ctrl_ && --(ctrl_->shared_count) == 0){
         delete ptr_;
         delete ctrl_;
       }
@@ -73,7 +74,7 @@ public:
   }
 
   ~shared_ptr(){
-    if(ctrl_ && --(ctrl_->ref_count) == 0){
+    if(ctrl_ && --(ctrl_->shared_count) == 0){
       delete ptr_;
       delete ctrl_;
     }
@@ -104,18 +105,18 @@ public:
   }
 
   size_t use_count() const {
-    return ctrl_ ? ctrl_->ref_count : 0;
+    return ctrl_ ? ctrl_->shared_count : 0;
   }
 
   void reset(T* ptr = nullptr){
-    if(ctrl_ && --(ctrl_->ref_count) == 0){
+    if(ctrl_ && --(ctrl_->shared_count) == 0){
       delete ptr_;
       delete ctrl_;
     }
 
     if(ptr){
       ptr_ = ptr;
-      ctrl_ = new control_block{1};
+      ctrl_ = new control_block{1,0};
     }
     else{
       ptr_ = nullptr;
