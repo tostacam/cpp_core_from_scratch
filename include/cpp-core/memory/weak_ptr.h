@@ -41,10 +41,13 @@ public:
 
   weak_ptr& operator=(const weak_ptr& other) {
     if(this != &other){
+      if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_count == 0)
+        delete ctrl_;
+
       if(other.ctrl_){
         ptr_ = other.ptr_;
         ctrl_ = other.ctrl_;
-        ctrl_->weak_count++; 
+        ctrl_->weak_count++;
       }
       else{
         ptr_ = nullptr;
@@ -62,8 +65,8 @@ public:
   }
 
   weak_ptr& operator=(weak_ptr&& other){
-    if(this != other){
-      if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_ptr == 0)
+    if(this != &other){
+      if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_count == 0)
         delete ctrl_;
       
       ptr_ = other.ptr_;
