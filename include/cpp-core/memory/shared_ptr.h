@@ -127,4 +127,7 @@ public:
 private:
   T* ptr_;
   control_block* ctrl_;
+
+  template <typename>
+  friend class weak_ptr;
 };
