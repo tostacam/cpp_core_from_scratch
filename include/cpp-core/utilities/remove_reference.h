@@ -4,7 +4,7 @@
 #pragma once
 
 template <typename T>
-struct remove_reference<T> {
+struct remove_reference {
   using type = T;
 };
 
