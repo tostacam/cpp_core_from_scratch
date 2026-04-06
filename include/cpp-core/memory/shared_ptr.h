@@ -27,6 +27,12 @@ public:
       ctrl_ = nullptr;
   }
 
+  shared_ptr(T* ptr, control_block* ctrl){
+    ptr_ = ptr;
+    ctrl_ = ctrl;
+    ++ctrl_->shared_count;
+  }
+
   shared_ptr(const shared_ptr& other){
     ptr_ = other.ptr_;
     ctrl_ = other.ctrl_;
