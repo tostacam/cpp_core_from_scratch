@@ -39,6 +39,41 @@ public:
     }
   }
 
+  weak_ptr& operator=(const weak_ptr& other) {
+    if(this != &other){
+      if(other.ctrl_){
+        ptr_ = other.ptr_;
+        ctrl_ = other.ctrl_;
+        ctrl_->weak_count++; 
+      }
+      else{
+        ptr_ = nullptr;
+        ctrl_ = nullptr;
+      }
+    }
+    return *this;
+  }
+
+  weak_ptr(weak_ptr&& other){
+    ptr_ = other.ptr_;
+    ctrl_ = other.ctrl_;
+    other.ptr_ = nullptr;
+    other.ctrl_ = nullptr; 
+  }
+
+  weak_ptr& operator=(weak_ptr&& other){
+    if(this != other){
+      if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_ptr == 0)
+        delete ctrl_;
+      
+      ptr_ = other.ptr_;
+      ctrl_ = other.ctrl_;
+      other.ptr_ = nullptr;
+      other.ctrl_ = nullptr;
+    }
+    return *this;
+  }
+
   ~weak_ptr(){
     if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_count == 0)
       delete ctrl_;
