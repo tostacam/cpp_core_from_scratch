@@ -81,6 +81,17 @@ public:
     if(ctrl_ && --(ctrl_->weak_count) == 0 && ctrl_->shared_count == 0)
       delete ctrl_;
   }
+
+  shared_ptr<T> lock() const {
+    if(ctrl_ && ctrl_->shared_count > 0){
+      return shared_ptr<T>(ptr_, ctrl_);
+    }
+    return shared_ptr<T>();
+  }
+
+  bool expired() const {
+    return ctrl_ == nullptr || ctrl_->shared_count == 0;
+  }
 private:
   T* ptr_;
   control_block* ctrl_;
