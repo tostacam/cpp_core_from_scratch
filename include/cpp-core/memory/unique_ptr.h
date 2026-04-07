@@ -1,9 +1,4 @@
 // std::unique_ptr<T>
-// - holds a raw pointer
-// - deletes it on destruction
-// - cannot be copied
-// - can be moved (transfers ownership)
-// - guarantees single ownership (prevents double delete, UB)
 
 template <typename T>
 class unique_ptr{

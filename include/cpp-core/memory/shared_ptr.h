@@ -1,12 +1,7 @@
 // std::shared_ptr<T>
-// - holds a raw pointer
-// - uses a control block (ref count + deleter)
-// - deletes the object when ref count reaches zero
-// - can be copied (ref count increases), can be moved (transfers ownership)
-// - allows shared ownership (multiple owners)
-// - prevents double delete via reference counting
 
 #pragma once
+
 #include <cstddef>  /* for size_t */
 
 class control_block{
