@@ -3,6 +3,7 @@
 
 #pragma once
 
+/* tag hierarchy */
 struct input_iterator_tag {};
 struct forward_iterator_tag : input_iterator_tag {};
 struct bidirectional_iterator_tag : forward_iterator_tag {};
