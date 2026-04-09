@@ -17,8 +17,8 @@ struct iterator_traits {
 
 template <typename T>
 struct iterator_traits<T*> {
-  using value_type        = T;
   using difference_type   = ptrdiff_t;
+  using value_type        = T;
   using pointer           = T*;
   using reference         = T&;
   using iterator_category = random_access_iterator_tag;
@@ -26,8 +26,8 @@ struct iterator_traits<T*> {
 
 template <typename T>
 struct iterator_traits<const T*> {
-  using value_type        = T;
   using difference_type   = ptrdiff_t;
+  using value_type        = T;
   using pointer           = const T*;
   using reference         = const T&;
   using iterator_category = random_access_iterator_tag;
