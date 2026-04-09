@@ -1,11 +1,21 @@
 // std::reverse_iterator<T>
 
+#pragma once
+
+#include "iterator_traits.h"
+
 template <typename It>
 class reverse_iterator {
 public:
+  using difference_type   = typename iterator_traits<It>::difference_type;
+  using value_type        = typename iterator_traits<It>::value_type;
+  using pointer           = typename iterator_traits<It>::pointer;
+  using reference         = typename iterator_traits<It>::reference;
+  using iterator_category = bidirectional_iterator_tag; /* no -, +, [] implementation yet */
+
   reverse_iterator() = default;
   
-  reverse_iterator(It it) : current(it) {}
+  explicit reverse_iterator(It it) : current(it) {}
 
   reverse_iterator& operator++(){
     --current;
@@ -33,14 +43,22 @@ public:
     return temp;
   }
 
-  auto operator*() const {
+  reference operator*() const {
     It temp = current;
     return *--temp;
   }
 
-  auto operator->() const {
+  pointer operator->() const {
     It temp = current;
     return &(*--temp);
+  }
+
+  bool operator==(const reverse_iterator& other) const {
+    return current == other.current;
+  }
+
+  bool operator!=(const reverse_iterator& other) const {
+    return current != other.current;
   }
 
 private:
