@@ -1,7 +1,10 @@
 // std::allocator<T>
 // - https://en.cppreference.com/w/cpp/memory/allocator.html
 
+#pragma once
+
 #include <cstddef>  /* for size_t */
+#include "../utilities/forward.h"
 
 template <typename T>
 struct allocator{
