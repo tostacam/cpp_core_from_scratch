@@ -1,5 +1,7 @@
 // std::list()
 
+#pragma once
+
 #include <cstddef>  /* for size_t */
 
 template <typename T>
