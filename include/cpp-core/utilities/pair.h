@@ -16,7 +16,7 @@ struct pair{
 
   /* perfect forwarding */
   template <typename U1, typename U2>
-  pair(U1&& a, U2&& b) : first(::forward<U1>(a)), second(::forward<U2>(b)) {}
+  pair(U1&& a, U2&& b) : first(forward<U1>(a)), second(forward<U2>(b)) {}
 };
 
 /* Class Template Argument Deduction (CTAD) */

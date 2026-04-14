@@ -25,7 +25,7 @@ OutIt merge(It1 f1, It1 l1, It2 f2, It2 l2, OutIt dest){
 
 template <typename It>
 void stable_sort(It first, It last){
-  iterator_traits<It>::difference_type n = last - first;
+  typename iterator_traits<It>::difference_type n = last - first;
   if(n <= 1) 
     return;
 
