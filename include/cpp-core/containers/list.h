@@ -1,7 +1,6 @@
 // std::list()
 
 #pragma once
-
 #include <cstddef>  /* for size_t */
 
 namespace cpp_core{
