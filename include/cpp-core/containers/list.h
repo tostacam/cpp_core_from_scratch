@@ -19,6 +19,7 @@ public:
   }
 
   ~list(){
+    clear();
     delete sentinel_;
   }
 
@@ -37,6 +38,11 @@ public:
     delete node;
   }
 
+  void clear(){
+    while(sentinel_->next != sentinel_)
+      pop_front();
+  }
+
   void push_back(const T& value){
     list_node<T>* node = new list_node<T>;
     node->value = value;
@@ -49,6 +55,14 @@ public:
     node->value = value;
     insert_node(sentinel_->next, node);
     ++size_;
+  }
+
+  void pop_back(){
+    erase_node(sentinel_->prev);
+  }
+
+  void pop_front(){
+    erase_node(sentinel_->next);
   }
 
 private:
