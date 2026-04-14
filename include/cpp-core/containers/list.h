@@ -65,6 +65,41 @@ public:
     erase_node(sentinel_->next);
   }
 
+  class iterator{
+  public:
+    list_node<T>* node_;
+
+    iterator(list_node<T>* n) : node_(n) {}
+
+    T& operator*() const { return node_->value; }
+
+    iterator& operator++(){
+      node_ = node_->next;
+      return *this;
+    }
+
+    iterator& operator--(){
+      node_ = node_->prev;
+      return *this;
+    }
+
+    bool operator==(const iterator& other) const {
+      return node_ == other.node_;
+    }
+
+    bool operator!=(const iterator& other) const {
+      return node_ != other.node_;
+    }
+  };
+
+  iterator begin(){
+    return iterator(sentinel_->next);
+  }
+
+  iterator end(){
+    return iterator(sentinel_);
+  }
+
 private:
   list_node<T>* sentinel_;
   size_t size_;
