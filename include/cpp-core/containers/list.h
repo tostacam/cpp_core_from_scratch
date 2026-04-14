@@ -59,10 +59,12 @@ public:
 
   void pop_back(){
     erase_node(sentinel_->prev);
+    --size_;
   }
 
   void pop_front(){
     erase_node(sentinel_->next);
+    --size_;
   }
 
   class iterator{
