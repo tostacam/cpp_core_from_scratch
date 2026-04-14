@@ -14,7 +14,7 @@ struct allocator{
     return static_cast<T*>(::operator new(n * sizeof(T)));
   }
 
-  void deallocate(T* p, size_t n){
+  void deallocate(T* p){
     ::operator delete(p);
   }
 
