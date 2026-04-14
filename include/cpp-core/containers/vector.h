@@ -1,10 +1,9 @@
 // std::vector<T>
 
 #pragma once
-
 #include <cstddef>  /* for size_t */
-#include <utility>  /* for move */
-#include <iterator> /* for std::distance */
+#include "../utilities/move.h"
+#include "../iterator/distance.h"
 #include "../memory/allocator.h"
 
 namespace cpp_core{
@@ -19,39 +18,39 @@ public:
   vector(It first, It last) : data_(nullptr), size_(0), capacity_(0) {
     size_t constructed = 0;
     try{
-      size_t dist = std::distance(first, last);
+      size_t dist = distance(first, last);
       reserve(dist);
       for( ; first != last; ++first){
-        new (data_ + size_) T(*first);
+        alloc_.construct(data_ + size_, *first);
         ++size_;
         ++constructed;
       }
     } catch(...) {
       for(size_t i = 0; i < constructed; ++i)
-        data_[i].~T();
-      ::operator delete(data_);
+        alloc_.destroy(data_ + i);
+      alloc_.deallocate(data_);
       throw;
     }
   }
 
   vector(const vector& other){
-    T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
+    T* new_data = alloc_.allocate(other.capacity_);
 
     data_ = new_data; 
     size_ = other.size_;
     capacity_ = other.capacity_;
 
     for(size_t i = 0; i < other.size_; ++i)
-      new (data_ + i) T(other.data_[i]);
+      alloc_.construct(data_ + i, other.data_[i]);
   }
 
   vector& operator=(const vector& other){
     if(this == &other)    /* other = other; */
       return *this;
-    
-    T* new_data = static_cast<T*>(::operator new(sizeof(T) * other.capacity_));
+
+    T* new_data = alloc_.allocate(other.capacity_);
     for(size_t i = 0; i < other.size_; ++i)
-      new (new_data + i) T(other.data_[i]);
+      alloc_.construct(new_data + i, other.data_[i]);
 
     destroy_and_deallocate();   /* if an operation fails, object */
                                 /* should remain unchanged */
@@ -113,30 +112,30 @@ public:
   void push_back(const T& value){
     if(size_ >= capacity_)
       grow();
-    new (data_ + size_) T(value);
+    alloc_.construct(data_ + size_, value);
     ++size_;
   }
 
   void push_back(T&& value){
     if(size_ >= capacity_)
       grow();
-    new (data_ + size_) T(std::forward<T>(value));
+    alloc_.construct(data_ + size_, forward<T>(value));
     ++size_;
   }
 
   T* insert(T* pos, const T& value){
-    size_t dist = std::distance(begin(), pos);
+    size_t dist = distance(begin(), pos);
     if(size_ == capacity_){
       grow();
       pos = begin() + dist;
     }
 
     for(size_t i = size_; i > dist; --i){
-      new (data_ + i) T(std::move(data_[i - 1]));
-      data_[i - 1].~T();
+      alloc_.construct(data_ + i, move(data_[i - 1]));
+      alloc_.destroy(data_ + i - 1);
     }
 
-    new (pos) T(value);
+    alloc_.construct(pos, value);
     ++size_;
 
     return pos;
@@ -144,10 +143,10 @@ public:
 
   T* erase(T* pos){
     for(T* it = pos; it < end() - 1; ++it){
-      new (it) T(std::move(*(it+1)));
-      (it+1)->~T();
+      alloc_.construct(it, move(*(it + 1)));
+      alloc_.destroy(it + 1);
     }
-    (data_ + size_ - 1)->~T();
+    alloc_.destroy(data_ + size_ - 1);
     --size_;
 
     return pos;
@@ -156,7 +155,7 @@ public:
   void pop_back(){
     if(size_ > 0){
       --size_;
-      data_[size_].~T();
+      alloc_.destroy(data_ + size_);
     }
   }
 
@@ -164,14 +163,14 @@ public:
   void emplace_back(Args&&... args){
     if(size_ >= capacity_)
       grow();
-    new (data_ + size_) T(std::forward<Args>(args)...);
+    alloc_.construct(data_ + size_, forward<Args>(args)...);
     ++size_;
   }
 
   void resize(size_t new_size){
     if(new_size < size_){
       for(size_t i = new_size; i < size_; ++i)
-        data_[i].~T();
+        alloc_.destroy(data_ + i);
       size_ = new_size;
     }
     else if(new_size > size_){
@@ -179,7 +178,7 @@ public:
         reallocate(new_size);
 
       for(size_t i = size_; i < new_size; ++i)
-        new (data_ + i) T();
+        alloc_.construct(data_ + i, T());
 
       size_ = new_size;
     }
@@ -188,7 +187,7 @@ public:
   void resize(size_t new_size, const T& value){
     if(new_size < size_){
       for(size_t i = new_size; i < size_; ++i)
-        data_[i].~T();
+        alloc_.destroy(data_ + i);
       size_ = new_size;
     }
     else if(new_size > size_){
@@ -196,7 +195,7 @@ public:
         reallocate(new_size);
 
       for(size_t i = size_; i < new_size; ++i)
-        new (data_ + i) T(value);
+        alloc_.construct(data_ + i, value);
 
       size_ = new_size;
     } 
@@ -210,10 +209,10 @@ public:
         data_[i] = value;
 
       for(; i < count; ++i)
-        new (data_ + i) T(value);
+        alloc_.construct(data_ + i, value);
 
       for(size_t j = count; j < size_; ++j)
-        data_[j].~T();
+        alloc_.destroy(data_ + j);
 
       size_ = count;
     }
@@ -221,7 +220,7 @@ public:
       reallocate(count);
 
       for(size_t i = 0; i < count; ++i)
-        new (data_ + i) T(value);
+        alloc_.destroy(data_ + i, value);
       
       size_ = count;
     }
@@ -282,7 +281,7 @@ public:
 
   void clear(){
     for(size_t i = 0; i < size_; ++i)
-     data_[i].~T();
+      alloc_.destroy(data_ + i);
     size_ = 0; 
   }
 
