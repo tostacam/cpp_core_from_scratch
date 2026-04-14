@@ -4,6 +4,8 @@
 #pragma once
 #include "remove_reference.h"
 
+namespace cpp_core{
+
 template <typename T>
 struct is_lvalue_reference {
   static constexpr bool value = false;
@@ -24,4 +26,6 @@ T&& forward(remove_reference_t<T>&& t){
   /* stops forwarding of rvalue as lvalue */
   static_assert(!is_lvalue_reference<T>::value, "wrong forward");
   return static_cast<T&&>(t);
+}
+
 }

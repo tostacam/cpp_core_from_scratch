@@ -4,6 +4,8 @@
 
 #include <cstddef>  /* for size_t */
 
+namespace cpp_core{
+
 class control_block{
 public:
   size_t shared_count;
@@ -132,3 +134,5 @@ private:
   template <typename>
   friend class weak_ptr;
 };
+
+}

@@ -4,6 +4,8 @@
 
 #include "../iterator/iterator_traits.h"
 
+namespace cpp_core{
+
 template <typename It1, typename It2, typename OutIt>
 OutIt merge(It1 f1, It1 l1, It2 f2, It2 l2, OutIt dest){
   while(f1 != l1 && f2 != l2){
@@ -44,4 +46,6 @@ void stable_sort(It first, It last){
 
   /* release buffer */
   delete[] buffer;
+}
+
 }

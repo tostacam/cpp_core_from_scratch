@@ -4,6 +4,8 @@
 
 #include "iterator_traits.h"
 
+namespace cpp_core{
+
 /* internal helper: input iterator */
 template <typename It>
 typename iterator_traits<It>::difference_type distance_impl(It first, It last, input_iterator_tag){
@@ -24,4 +26,6 @@ template <typename It>
 typename iterator_traits<It>::difference_type distance(It first, It last){
   using category = typename iterator_traits<It>::iterator_category;
   return distance_impl(first, last, category{});
+}
+
 }

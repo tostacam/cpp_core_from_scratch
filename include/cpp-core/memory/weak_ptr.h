@@ -4,6 +4,8 @@
 
 #include "shared_ptr.h"
 
+namespace cpp_core{
+
 template <typename T>
 class weak_ptr{
 public:
@@ -90,3 +92,5 @@ private:
   T* ptr_;
   control_block* ctrl_;
 };
+
+}

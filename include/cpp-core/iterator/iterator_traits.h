@@ -6,6 +6,8 @@
 #include <cstddef>
 #include "iterator_tags.h"
 
+namespace cpp_core{
+
 template <typename It>
 struct iterator_traits {
   using difference_type   = typename It::difference_type;
@@ -32,3 +34,5 @@ struct iterator_traits<const T*> {
   using reference         = const T&;
   using iterator_category = random_access_iterator_tag;
 };
+
+}

@@ -6,6 +6,8 @@
 #include <cstddef>  /* for size_t */
 #include "../utilities/forward.h"
 
+namespace cpp_core{
+
 template <typename T>
 struct allocator{
   using value_type = T;
@@ -27,3 +29,5 @@ struct allocator{
     p->~T();
   }
 };
+
+}

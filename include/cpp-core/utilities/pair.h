@@ -3,6 +3,8 @@
 #pragma once
 #include "forward.h"
 
+namespace cpp_core{
+
 template <typename T1, typename T2>
 struct pair{
   T1 first;
@@ -20,3 +22,5 @@ struct pair{
 /* Class Template Argument Deduction (CTAD) */
 template <typename T1, typename T2>
 pair(T1, T2) -> pair<T1, T2>;
+
+}

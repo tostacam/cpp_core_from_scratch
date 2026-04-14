@@ -3,6 +3,8 @@
 #pragma once
 #include "../utilities/swap.h"
 
+namespace cpp_core{
+
 template <typename It, typename Pred>
 It partition(It first, It last, Pred pred){
   It part = first;
@@ -14,4 +16,6 @@ It partition(It first, It last, Pred pred){
         swap(*part++, *first);
     }
   return part;
+}
+
 }

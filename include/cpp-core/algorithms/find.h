@@ -1,4 +1,6 @@
-// find()
+// std::find()
+
+namespace cpp_core{
 
 template <typename It, typename T>
 It find(It first, It last, const T& value){
@@ -6,4 +8,6 @@ It find(It first, It last, const T& value){
     if(*first == value)
       return first;
   return last;
+}
+
 }

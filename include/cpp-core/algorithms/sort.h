@@ -5,6 +5,8 @@
 #include "../utilities/swap.h"
 #define RANGE_SIZE  16
 
+namespace cpp_core{
+
 template <typename It>
 It partition_qs(It first, It last){
   auto pivot = *(last - 1);
@@ -119,4 +121,6 @@ void sort(It first, It last, Comp comp){
 
   sort(first, p, comp);
   sort(p + 1, last, comp);
+}
+
 }

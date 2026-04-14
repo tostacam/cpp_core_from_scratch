@@ -4,6 +4,8 @@
 
 #include <cstddef>  /* for size_t */
 
+namespace cpp_core{
+
 template <typename T>
 struct list_node{
   T value;
@@ -108,3 +110,5 @@ private:
   list_node<T>* sentinel_;
   size_t size_;
 };
+
+}

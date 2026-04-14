@@ -4,6 +4,8 @@
 
 #include "iterator_traits.h"
 
+namespace cpp_core{
+
 template <typename It>
 class reverse_iterator {
 public:
@@ -64,3 +66,5 @@ public:
 private:
   It current; 
 };
+
+}

@@ -1,5 +1,7 @@
 // std::unique_ptr<T>
 
+namespace cpp_core{
+
 template <typename T>
 class unique_ptr{
 public:
@@ -70,3 +72,5 @@ public:
 private:
   T* ptr_;
 };
+
+}

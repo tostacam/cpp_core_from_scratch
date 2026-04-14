@@ -4,6 +4,8 @@
 
 #include "iterator_traits.h"
 
+namespace cpp_core{
+
 /* internal helper: input iterator */
 template <typename It, typename Dist>
 void advance_impl(It& it, Dist n, input_iterator_tag){
@@ -33,4 +35,6 @@ template <typename It, typename Dist>
 void advance(It& it, Dist n){
   using category = typename iterator_traits<It>::iterator_category;
   advance_impl(it, n, category{});
+}
+
 }

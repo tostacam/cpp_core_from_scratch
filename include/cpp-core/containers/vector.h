@@ -7,6 +7,8 @@
 #include <iterator> /* for std::distance */
 #include "../memory/allocator.h"
 
+namespace cpp_core{
+
 template <typename T>
 class vector{
 public:
@@ -329,3 +331,5 @@ private:
   size_t capacity_;
   allocator<T> alloc_;
 };
+
+}

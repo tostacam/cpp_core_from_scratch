@@ -4,6 +4,8 @@
 
 #include "../utilities/swap.h"
 
+namespace cpp_core{
+
 template <typename It>
 void pop_heap(It first, It last){
   swap(*first, *(last - 1));
@@ -30,4 +32,6 @@ void pop_heap(It first, It last){
     else 
       break;
   }
+}
+
 }

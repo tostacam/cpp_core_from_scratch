@@ -4,6 +4,8 @@
 
 #include "../utilities/swap.h"
 
+namespace cpp_core{
+
 template <typename It>
 void make_heap(It first, It last){
   if(last - first <= 1)
@@ -35,4 +37,6 @@ void make_heap(It first, It last){
     if(i == first)
       break;
   }
+}
+
 }

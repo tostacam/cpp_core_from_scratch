@@ -4,6 +4,8 @@
 
 #include "../utilities/swap.h"
 
+namespace cpp_core{
+
 template <typename It>
 void push_heap(It first, It last){
   auto child = last - 1;
@@ -18,4 +20,6 @@ void push_heap(It first, It last){
     else 
       break;
   }
+}
+
 }
