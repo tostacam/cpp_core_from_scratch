@@ -18,7 +18,7 @@ public:
   vector(It first, It last) : data_(nullptr), size_(0), capacity_(0) {
     size_t constructed = 0;
     try{
-      size_t dist = distance(first, last);
+      size_t dist = cpp_core::distance(first, last);
       reserve(dist);
       for( ; first != last; ++first){
         alloc_.construct(data_ + size_, *first);
@@ -119,19 +119,19 @@ public:
   void push_back(T&& value){
     if(size_ >= capacity_)
       grow();
-    alloc_.construct(data_ + size_, forward<T>(value));
+    alloc_.construct(data_ + size_, cpp_core::forward<T>(value));
     ++size_;
   }
 
   T* insert(T* pos, const T& value){
-    size_t dist = distance(begin(), pos);
+    size_t dist = cpp_core::distance(begin(), pos);
     if(size_ == capacity_){
       grow();
       pos = begin() + dist;
     }
 
     for(size_t i = size_; i > dist; --i){
-      alloc_.construct(data_ + i, move(data_[i - 1]));
+      alloc_.construct(data_ + i, cpp_core::move(data_[i - 1]));
       alloc_.destroy(data_ + i - 1);
     }
 
@@ -143,7 +143,7 @@ public:
 
   T* erase(T* pos){
     for(T* it = pos; it < end() - 1; ++it){
-      alloc_.construct(it, move(*(it + 1)));
+      alloc_.construct(it, cpp_core::move(*(it + 1)));
       alloc_.destroy(it + 1);
     }
     alloc_.destroy(data_ + size_ - 1);
@@ -163,7 +163,7 @@ public:
   void emplace_back(Args&&... args){
     if(size_ >= capacity_)
       grow();
-    alloc_.construct(data_ + size_, forward<Args>(args)...);
+    alloc_.construct(data_ + size_, cpp_core::forward<Args>(args)...);
     ++size_;
   }
 
