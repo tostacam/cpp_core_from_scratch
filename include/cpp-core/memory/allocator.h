@@ -22,7 +22,7 @@ struct allocator{
 
   template <typename... Args>
   void construct(T* p, Args&&... args){
-    new (p) T(::forward<Args>(args)...);
+    new (p) T(forward<Args>(args)...);
   }
 
   void destroy(T* p){
