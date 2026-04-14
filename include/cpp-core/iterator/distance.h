@@ -1,7 +1,6 @@
 // std::distance()
 
 #pragma once
-
 #include "iterator_traits.h"
 
 namespace cpp_core{

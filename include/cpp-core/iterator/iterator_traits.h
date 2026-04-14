@@ -2,8 +2,7 @@
 // - https://saco-evaluator.org.za/docs/cppreference/en/cpp/iterator/iterator_traits.html
 
 #pragma once
-
-#include <cstddef>
+#include <cstddef>  /* for size_t */
 #include "iterator_tags.h"
 
 namespace cpp_core{

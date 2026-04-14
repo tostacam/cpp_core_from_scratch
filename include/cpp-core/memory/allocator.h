@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstddef>  /* for size_t */
+#include <new>      /* for new */
 #include "../utilities/forward.h"
 
 namespace cpp_core{
