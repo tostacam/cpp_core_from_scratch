@@ -5,6 +5,7 @@
 #include <cstddef>  /* for size_t */
 #include <utility>  /* for move */
 #include <iterator> /* for std::distance */
+#include "../memory/allocator.h"
 
 template <typename T>
 class vector{
@@ -290,20 +291,20 @@ private:
   }
 
   void reallocate(size_t new_capacity){
-    T* new_data = static_cast<T*>(::operator new(sizeof(T) * new_capacity));
+    T* new_data = alloc_.allocate(new_capacity);
 
     /* construction loops must always be exception-safe */
     size_t temp = (size_ < new_capacity) ? size_ : new_capacity; 
     size_t constructed = 0;
     try {
       for(size_t i = 0; i < size_ && i < new_capacity; ++i){
-        new (new_data + i) T(std::move(data_[i]));
+        alloc_.construct(new_data + i, data_[i]); 
         ++constructed;
       }
     } catch(...) {
       for(size_t j = 0; j < constructed; ++j)
-        new_data[j].~T();
-      ::operator delete(new_data);
+        alloc_.destroy(new_data + j);
+      alloc_.deallocate(new_data);
       throw;
     }
 
@@ -315,8 +316,8 @@ private:
 
   void destroy_and_deallocate(){
     for(size_t i = 0; i < size_; ++i)
-      data_[i].~T();          /* destroying each element */
-    ::operator delete(data_); /* releasing raw memory */
+      alloc_.destroy(data_ + i);  /* destroying each element */
+    alloc_.deallocate(data_);     /* releasing raw memory */
 
     data_ = nullptr;
     size_ = 0;
@@ -326,4 +327,5 @@ private:
   T* data_;
   size_t size_;
   size_t capacity_;
+  allocator<T> alloc_;
 };
